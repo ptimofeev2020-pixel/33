@@ -1,0 +1,97 @@
+[
+  {
+    "model": "users.user",
+    "pk": 1,
+    "fields": {
+      "password": "pbkdf2_sha256$1000000$7MgvZ8WMwMOfxanrPiB4ZQ$B8FCo7BLVDsX7+S0c5MKRhxkhE9Q+LVmuKk26DFiPDk=",
+      "is_superuser": false,
+      "is_staff": false,
+      "is_active": true,
+      "email": "student@mail.ru",
+      "phone": "+79001112233",
+      "city": "Москва"
+    }
+  },
+  {
+    "model": "lms.course",
+    "pk": 1,
+    "fields": {
+      "name": "Python с нуля",
+      "description": "Базовый курс"
+    }
+  },
+  {
+    "model": "lms.course",
+    "pk": 2,
+    "fields": {
+      "name": "Django PRO",
+      "description": "Продвинутый курс"
+    }
+  },
+  {
+    "model": "lms.lesson",
+    "pk": 1,
+    "fields": {
+      "name": "Введение",
+      "description": "Первый урок",
+      "video_url": "https://youtu.be/a",
+      "course": 1
+    }
+  },
+  {
+    "model": "lms.lesson",
+    "pk": 2,
+    "fields": {
+      "name": "Переменные",
+      "description": "Второй урок",
+      "video_url": "https://youtu.be/b",
+      "course": 1
+    }
+  },
+  {
+    "model": "lms.lesson",
+    "pk": 3,
+    "fields": {
+      "name": "ORM",
+      "description": "Урок по ORM",
+      "video_url": "https://youtu.be/c",
+      "course": 2
+    }
+  },
+  {
+    "model": "users.payment",
+    "pk": 1,
+    "fields": {
+      "user": 1,
+      "payment_date": "2026-01-10T10:00:00Z",
+      "paid_course": 1,
+      "paid_lesson": null,
+      "amount": "5000.00",
+      "payment_method": "cash"
+    }
+  },
+  {
+    "model": "users.payment",
+    "pk": 2,
+    "fields": {
+      "user": 1,
+      "payment_date": "2026-02-15T12:00:00Z",
+      "paid_course": null,
+      "paid_lesson": 3,
+      "amount": "800.00",
+      "payment_method": "transfer"
+    }
+  },
+  {
+    "model": "users.payment",
+    "pk": 3,
+    "fields": {
+      "user": 1,
+      "payment_date": "2026-03-20T09:30:00Z",
+      "paid_course": 2,
+      "paid_lesson": null,
+      "amount": "7000.00",
+      "payment_method": "transfer"
+    }
+  }
+]
