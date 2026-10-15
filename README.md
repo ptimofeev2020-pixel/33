@@ -1,39 +1,34 @@
-# LMS — 32.2 Документирование и безопасность
+# LMS — 33 Celery
 
-## Документация API (drf-spectacular)
-- Swagger UI: `/api/docs/`
-- ReDoc: `/api/redoc/`
-- OpenAPI-схема: `/api/schema/`
-
-Описаны все эндпоинты; нестандартные (подписка, оплата, статус оплаты) описаны вручную через `@extend_schema`
-с параметрами, ответами и ошибками.
-
-## Оплата курсов через Stripe
-Сервисные функции — `users/services.py`:
-- `create_stripe_product` — создание продукта
-- `create_stripe_price` — создание цены (сумма переводится в копейки)
-- `create_stripe_session` — создание сессии оплаты, возвращает ссылку
-- `retrieve_stripe_session` — получение статуса сессии (доп. задание)
-
-Эндпоинты:
-- `POST /payments/create/` с `{"course_id": <id>}` — создаёт продукт, цену и сессию, сохраняет платёж
-  (ID продукта, цены, сессии, ссылку) и возвращает ссылку на оплату
-- `GET /payments/<id>/status/` — проверяет статус в Stripe и обновляет платёж
-
-У курса добавлено поле `price` (руб.). Тестовая карта Stripe: `4242 4242 4242 4242`, любая будущая дата и CVC.
+## Что добавлено
+- `config/celery.py` — приложение Celery, настройки читаются из `settings.py` с префиксом `CELERY_`
+- Адреса Redis (брокер и бэкенд результатов) вынесены в `.env` (`CELERY_BROKER_URL`, `CELERY_RESULT_BACKEND`)
+- `CELERY_TIMEZONE` совпадает с `TIME_ZONE` проекта (Europe/Moscow)
+- `lms/tasks.py` — `send_course_update_email`: письмо всем подписчикам курса об обновлении материалов
+- Задача вызывается через `.delay()` после успешного обновления курса или урока (`perform_update`)
+- Доп. задание: письмо уходит, только если курс не обновлялся больше 4 часов (`timezone.now() - updated_at`)
+- `users/tasks.py` — `block_inactive_users`: блокирует (`is_active=False`) пользователей, не заходивших
+  больше месяца по `last_login`; обновление одним запросом (батчем)
+- Расписание celery-beat в `CELERY_BEAT_SCHEDULE`: проверка неактивных пользователей каждый день в 00:00
 
 ## Запуск
+Нужен запущенный Redis.
 ```
 pip install -r requirements.txt
-cp .env.sample .env   # указать STRIPE_API_KEY (sk_test_...)
+cp .env.sample .env
 python manage.py migrate
 python manage.py loaddata groups.json
 python manage.py runserver
 ```
+В отдельных терминалах:
+```
+celery -A config worker -l info
+celery -A config beat -l info
+```
+На Windows воркер запускать так: `celery -A config worker -l info -P solo`
 
 ## Тесты
 ```
 coverage run --source='.' manage.py test
 coverage report
 ```
-Stripe в тестах замокан. Отчёт покрытия — `coverage_report.txt` (94%).
